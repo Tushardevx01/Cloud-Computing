@@ -33,7 +33,7 @@
 4. Explore the homepage and locate the buttons for creating, opening, and sharing files (e.g., the **+ New** button in Google Drive).
 
 ### Step 2: Explore and Identify SaaS Features
-Locate and observe the following elements on your dashboard (take a screenshot if required for your lab record):
+Locate and observe the following elements on your dashboard:
 1. **User account/profile options** (top-right corner).
 2. **Application dashboard** and **Cloud storage location** (*My Drive* / *OneDrive*).
 3. **File creation options** (Docs, Sheets, Slides).
@@ -66,6 +66,9 @@ Insert a **4x2 table** (*Insert* -> *Table*) and fill in the following details:
 | **Updates** | Software updates are managed by the provider |
 | **Storage** | Data can be stored in the cloud |
 
+![Google Docs Table Creation](./1_googledocs1.png)
+*Figure 7.1: Document creation and initial SaaS overview table in Google Docs.*
+
 ### Step 3: Share the Document
 1. Click the **Share** button in the top-right corner.
 2. Enter the email address of your lab partner (or your second email account).
@@ -81,7 +84,9 @@ Have the collaborator open the shared document and perform these steps:
 ### Step 5: Observe Version History
 1. In the top menu, click **File** -> **Version history** -> **See version history** (or click the clock icon at the top right).
 2. Expand the timestamps on the right panel to see the exact changes highlighted by user color, along with the user's name and timestamp.
-3. *(Take a screenshot of the Version History view to demonstrate collaborative editing for your lab report).*
+
+![Google Docs Collaborative Editing and Version History](./2_googledocs.png)
+*Figure 7.2: Active comment thread, collaborator cursor, and Version History audit sidebar.*
 
 ---
 
@@ -117,6 +122,9 @@ Below the table (in rows 7 to 10), add labels in Column C and type the correspon
 
 * Apply bold formatting to the header row (`A1:D1`) and summary labels (`C7:C10`), and add cell borders to make the table clean.
 
+![Google Sheets Table & Formulas](./3_googlesheets.png)
+*Figure 7.3: Data entry and formula calculation (`SUM`, `AVERAGE`, `MAX`, `MIN`) in Google Sheets.*
+
 ### Step 4: Share the Spreadsheet
 1. Click **Share** in the top-right corner.
 2. Add your collaborator's email address, assign **Editor** permission, and click **Send**.
@@ -127,6 +135,9 @@ Ask your collaborator to:
 2. Modify one existing mark (e.g., change `Student B` from `75` to `80`) and watch the `SUM` and `AVERAGE` formulas automatically update in real time.
 3. Right-click a cell, select **Comment**, and add a note.
 4. Check **File** -> **Version history** -> **See version history** (or right-click a modified cell and select **Show edit history**) to verify the changes.
+
+![Google Sheets Collaboration](./4_googlesheets.png)
+*Figure 7.4: Simultaneous collaborator presence and live data formula recalculation.*
 
 ---
 
@@ -173,6 +184,9 @@ Create 4 slides using the following structure:
     * Reduced local maintenance
     * Scalable access
 
+![Google Slides Presentation](./5_googleslides.png)
+*Figure 7.5: Designing multi-slide presentation in Google Slides.*
+
 #### Step 3: Share the Presentation
 1. Click **Share** in the top-right corner.
 2. Add your collaborator's email, assign **Editor** permission, and click **Send**.
@@ -183,6 +197,9 @@ Have the collaborator open the presentation and:
 2. Change the slide theme or font formatting.
 3. Add a comment on a slide.
 4. Observe the real-time cursor presence and review changes in **File** -> **Version history**.
+
+![Google Slides Collaborative Edits](./6_googleslides.png)
+*Figure 7.6: Live collaborative modifications and comment discussion on slides.*
 
 ---
 
@@ -203,8 +220,8 @@ Start an instant test meeting (or explore the interface) and identify the follow
 
 ## Lab Report Screenshot Checklist
 To easily demonstrate all four tasks to your instructor, take the following screenshots:
-- [ ] **Task 1:** Google Drive / Microsoft 365 dashboard showing file creation and cloud storage options.
-- [ ] **Task 2:** Google Docs showing the SaaS table, an active comment thread, and the **Version History** sidebar showing two users.
-- [ ] **Task 3:** Google Sheets showing the Student Marks table, computed `SUM`/`AVERAGE`/`MAX`/`MIN` values, and cell edit history/comments.
-- [ ] **Task 4A:** Google Slides showing the 4 created slides and collaborative edits/comments.
-- [ ] **Task 4B:** Google Meet / Microsoft Teams dashboard or test meeting interface.
+- [x] **Task 1:** Google Drive / Microsoft 365 dashboard showing file creation and cloud storage options.
+- [x] **Task 2:** Google Docs showing the SaaS table, an active comment thread, and the **Version History** sidebar showing two users (`1_googledocs1.png`, `2_googledocs.png`).
+- [x] **Task 3:** Google Sheets showing the Student Marks table, computed `SUM`/`AVERAGE`/`MAX`/`MIN` values, and cell edit history/comments (`3_googlesheets.png`, `4_googlesheets.png`).
+- [x] **Task 4A:** Google Slides showing the 4 created slides and collaborative edits/comments (`5_googleslides.png`, `6_googleslides.png`).
+- [x] **Task 4B:** Google Meet / Microsoft Teams dashboard or test meeting interface.

@@ -60,6 +60,9 @@ if __name__ == "__main__":
     app.run(host="127.0.0.1", port=8080)
 ```
 
+![Created Main File](./1_createdfiles.png)
+*Figure 8.1: Creating and editing `main.py`.*
+
 **Code Explanation:**
 * `Flask(__name__)` initializes the Flask web application instance (`app`).
 * `@app.route("/")` maps the root URL path (`/`) to the `home()` function.
@@ -73,6 +76,9 @@ Create a file named `requirements.txt` in the same directory:
 Flask
 gunicorn
 ```
+
+![Created Requirements File](./2_requirementfile.png)
+*Figure 8.2: Specifying application dependencies in `requirements.txt`.*
 
 > **Note:** `Flask` is the web framework, while `gunicorn` is a production-grade Python WSGI HTTP server used by Render to run the application in the cloud.
 
@@ -90,6 +96,12 @@ gunicorn
    http://127.0.0.1:8080
    ```
 4. **Verification:** Confirm that the page renders the **"Cloud Computing Lab 8"** heading. Press `Ctrl + C` in the terminal to stop the local server before proceeding.
+
+![Application Running Locally](./3_ranSuccessfully.png)
+*Figure 8.3: Local Flask development server running on port 8080.*
+
+![Local Webpage Preview](./4_webpage.png)
+*Figure 8.4: Viewing the local Flask application in browser.*
 
 ---
 
@@ -130,6 +142,9 @@ Fill in the deployment settings as follows:
 
 Click **Deploy Web Service**.
 
+![Render Deployment Configuration](./5_deploymentconfig.png)
+*Figure 8.5: Configuring the Render Web Service build and start commands.*
+
 ### Step 4: Verify the Deployed Application
 1. Monitor the **Deploy Logs** in Render as it installs dependencies and starts Gunicorn.
 2. Once the log displays `Your service is live 🎉`, copy your public Render URL at the top-left of the dashboard (e.g., `https://cloud-lab8.onrender.com`).
@@ -148,10 +163,16 @@ Click **Deploy Web Service**.
    * **Timestamp:** Build and deployment completion time
    * **Rollback Option:** Ability to revert to previous versions if needed.
 
+![Render Events Log](./6_eventLog.png)
+*Figure 8.6: Render Events tab displaying build and deployment progression.*
+
 ### Task 4B: Monitor Application Logs
 1. Click **Logs** in the left sidebar of your Render service.
 2. Open your live `https://<your-app>.onrender.com` URL in another browser tab and refresh it 3–5 times.
 3. **Observe:** The live log stream immediately records incoming HTTP traffic (e.g., `GET / HTTP/1.1` with status code `200`), demonstrating real-time cloud observability without SSH access.
+
+![Live Application Logs](./7_applicationlogs.png)
+*Figure 8.7: Real-time application logs showing HTTP 200 responses.*
 
 ### Task 4C: Modify and Redeploy the Application (Version 2)
 1. Open `main.py` on your local machine and update the HTML output to indicate **Version 2**:
@@ -181,15 +202,24 @@ git commit -m "Deploy Version 2"
 git push origin main
 ```
 
+![Commit and Push Version 2](./8_NewVersion.png)
+*Figure 8.8: Updating application code and pushing Version 2 to GitHub.*
+
 3. **Verify:**
    * Return to the **Events** tab in Render and watch the new deployment (`Deploy Version 2`) build automatically and replace Version 1 with zero downtime.
    * Refresh your live `.onrender.com` URL in the browser and verify that **Application Version 2** is displayed.
+
+![Live Deployed Webpage on Render](./9_webpage.png)
+*Figure 8.9: Live public application running on Render showing Application Version 2.*
 
 ### Task 4D: Explore PaaS Management Features
 Explore the remaining sections of the Render Dashboard to observe managed cloud operations:
 * **Metrics:** View real-time graphs of **CPU** and **Memory** consumption managed by the platform.
 * **Environment:** Inspect or add environment variables (`KEY=VALUE`) without modifying source code.
 * **Settings:** Review auto-deploy triggers, health check paths, start/build commands, and instance scaling options.
+
+![Render Dashboard Metrics](./10_Metrics.png)
+*Figure 8.10: Render cloud metrics monitoring CPU and memory usage.*
 
 ---
 

@@ -1,25 +1,25 @@
 # Lab 4: Software-Defined Networking (SDN) - Mininet, Open vSwitch & Ryu Controller
 
-This repository documents the setup, troubleshooting, and execution of a Software-Defined Networking (SDN) environment on Ubuntu Linux using **Mininet**, **Open vSwitch (OVS)**, and the **Ryu SDN Controller** (OpenFlow 1.3). 
+This laboratory documents the setup, troubleshooting, and execution of a Software-Defined Networking (SDN) environment on Ubuntu Linux using **Mininet**, **Open vSwitch (OVS)**, and the **Ryu SDN Controller** (OpenFlow 1.3).
 
-It also includes patches for installing and running `ryu` on modern Python environments (**Python 3.14+**), resolving legacy `setuptools` build isolation failures and `eventlet.wsgi` import deprecations.
+It also includes patches for installing and running `ryu` on modern Python environments (**Python 3.12+ / 3.14+**), resolving legacy `setuptools` build isolation failures and `eventlet.wsgi` import deprecations.
 
 ---
 
 ## Architecture & Prerequisites
-
 * **OS:** Ubuntu Linux (VirtualBox VM)
 * **Network Emulator:** Mininet
 * **Virtual Switch:** Open vSwitch (`openvswitch-switch`)
 * **SDN Controller:** Ryu (`ryu-manager 4.34` running `simple_switch_13`)
-* **Python Environment:** Python 3.14 (`venv`)
+* **Control Protocol:** OpenFlow 1.3
+* **Python Environment:** Python 3.x (`venv`)
 
 ---
 
 ## Part 1: Environment Setup & Installation
 
 ### 1. Update Ubuntu
-Update the package lists and upgrade existing system packages:
+Update package lists and upgrade existing system packages:
 ```bash
 sudo apt update && sudo apt upgrade -y
 ```
@@ -42,12 +42,15 @@ Confirm that the Open vSwitch daemon is active and running:
 sudo systemctl status openvswitch-switch
 ```
 
+![Checked Open vSwitch](./1_CheckedOpenvswitch.png)
+*Figure 4.1: Verifying active status of `openvswitch-switch.service`.*
+
 ### 5. Verify Base Mininet Functionality
 Launch a default Mininet topology to verify host and switch creation:
 ```bash
 sudo mn
 ```
-Inside the `mininet>` CLI, verify the nodes and test connectivity:
+Inside the `mininet>` CLI, verify nodes and test connectivity:
 ```text
 mininet> nodes
 mininet> pingall
@@ -56,10 +59,9 @@ mininet> exit
 
 ---
 
-## Part 2: Ryu SDN Controller Installation & Python 3.14 Troubleshooting
+## Part 2: Ryu SDN Controller Installation & Troubleshooting
 
 ### 6. Install Python and Virtual Environment Tools
-Install `pip` and `venv` support:
 ```bash
 sudo apt install python3-pip python3-venv -y
 ```
@@ -71,111 +73,125 @@ python3 -m venv ryu-env
 source ryu-env/bin/activate
 ```
 
-### 8. Install Ryu (with Python 3.14 Compatibility Fixes)
-
-Attempting a standard `pip install ryu` on modern Python/Ubuntu environments fails due to two legacy incompatibilities in Ryu (`4.34`). Follow the steps below to resolve both.
+### 8. Install Ryu (with Compatibility Fixes)
 
 #### Issue A: `AttributeError: 'types.SimpleNamespace' object has no attribute 'get_script_args'`
-* **Cause:** `pip` uses isolated build environments with the latest `setuptools` (v68+), which removed `easy_install.get_script_args` required by Ryu's setup hooks.
-* **Fix:** Downgrade `setuptools` below version 68 and disable build isolation when installing `ryu`:
+Modern `pip` uses build isolation by default, which breaks Ryu's legacy `setup.py`.
 
+![Error Installing Ryu](./2_Errorwhileinstallingryu.png)
+*Figure 4.2: Build isolation failure during standard `pip install ryu`.*
+
+**Fix:** Pre-install build dependencies directly and install Ryu with `--no-build-isolation`:
 ```bash
-pip install "setuptools<68" wheel
+pip install setuptools wheel
 pip install --no-build-isolation ryu
 ```
 
-#### Issue B: `ImportError: cannot import name 'ALREADY_HANDLED' from 'eventlet.wsgi'`
-* **Cause:** Modern `eventlet` versions (`0.31.0+`) required for Python 3.14 compatibility removed the private `ALREADY_HANDLED` attribute from `eventlet.wsgi`, causing `ryu-manager` to crash on startup.
-* **Fix:** Patch `ryu/app/wsgi.py` inside the virtual environment to fall back to `object()` when `ALREADY_HANDLED` is not exported:
+![Fix for First Error](./3_fixfortheFirsterror.png)
+*Figure 4.3: Successful compilation of Ryu using `--no-build-isolation`.*
 
+#### Issue B: `ImportError: cannot import name 'ALREADY_HANDLED' from 'eventlet.wsgi'`
+Modern `eventlet` versions remove or relocate `ALREADY_HANDLED`, causing `ryu-manager` to crash on startup.
+
+![Error Checking Ryu Version](./4_Errorwhilecheckingversion.png)
+*Figure 4.4: Ryu startup crash due to deprecated `eventlet.wsgi.ALREADY_HANDLED` import.*
+
+**Fix:** Pin an earlier compatible `eventlet` release or patch the Ryu hub code:
 ```bash
-sed -i 's/from eventlet.wsgi import ALREADY_HANDLED/ALREADY_HANDLED = getattr(__import__("eventlet.wsgi").wsgi, "ALREADY_HANDLED", object())/' ~/ryu-env/lib/python3.14/site-packages/ryu/app/wsgi.py
+pip install "eventlet<0.34.0"
 ```
+
+![Fixed Second Error](./5_fixedtheSecondError.png)
+*Figure 4.5: Resolved `eventlet` dependency and successful `ryu-manager --version` check.*
 
 ### 9. Test Ryu Installation
-Verify that `ryu-manager` executes properly:
+Confirm the Ryu controller executable is working properly:
 ```bash
 ryu-manager --version
-```
-**Expected Output:**
-```text
-ryu-manager 4.34
 ```
 
 ---
 
-## Part 3: Running the SDN Topology & Traffic Filtering
+## Part 3: Running the SDN Topology & Controller
 
 ### 10. Start the Ryu Controller (Terminal 1)
-Start `ryu-manager` with the OpenFlow 1.3 Simple Switch application:
+Run Ryu with the standard OpenFlow 1.3 learning switch application:
 ```bash
+source ryu-env/bin/activate
 ryu-manager ryu.app.simple_switch_13
 ```
-**Expected Output:**
-```text
-loading app ryu.app.simple_switch_13
-loading app ryu.controller.ofp_handler
-instantiating app ryu.app.simple_switch_13 of SimpleSwitch13
-instantiating app ryu.controller.ofp_handler of OFPHandler
-```
-> **Note:** Keep this terminal open so the controller remains active in the foreground.
+*Ryu starts listening on `0.0.0.0:6653` (or `6633`).*
+
+![Ryu Controller Running](./6_ryuController.png)
+*Figure 4.6: Ryu controller listening for OpenFlow 1.3 switch handshakes.*
 
 ### 11. Create the Mininet SDN Topology (Terminal 2)
-Open a **new terminal window** and create a topology with 3 virtual hosts (`h1`, `h2`, `h3`) connected to a single Open vSwitch (`s1`) managed by the remote Ryu controller:
+In a second terminal, launch a Mininet tree topology connected to the remote Ryu controller:
 ```bash
-sudo mn --topo single,3 --controller=remote --switch ovsk
+sudo mn --topo=tree,depth=2,fanout=2 --controller=remote,ip=127.0.0.1,port=6653 --switch=ovsk,protocols=OpenFlow13
 ```
 
 ### 12. Inspect Available Nodes
-Inside the `mininet>` prompt, list all network nodes (`h1`, `h2`, `h3`, `s1`, `c0`):
 ```text
 mininet> nodes
 ```
+Shows the controller `c0`, switches `s1`, `s2`, `s3`, and hosts `h1`, `h2`, `h3`, `h4`.
 
 ### 13. Inspect Network Links
-View the port mappings connecting the hosts to switch `s1`:
 ```text
-mininet> net
+mininet> links
 ```
 
 ### 14. Test Initial Host Connectivity
-Verify that the Ryu controller dynamically installs L2 forwarding rules to allow communication between all hosts:
 ```text
 mininet> pingall
-mininet> h1 ping -c 4 h2
 ```
+All packets should successfully pass with `0% dropped` as the Ryu controller dynamically learns MAC addresses and installs flow entries.
+
+![Tested with Mininet](./7_testedwithMininet.png)
+*Figure 4.7: Mininet topology connecting to Ryu remote controller with `pingall` success.*
 
 ---
 
 ## Part 4: OpenFlow Flow Table Inspection & Packet Filtering
 
 ### 15. View Installed OpenFlow Rules (Terminal 3)
-Open a **third terminal window** and dump the active OpenFlow 1.3 flow entries installed on switch `s1`:
+Inspect the active flow entries installed by Ryu on switch `s1`:
 ```bash
 sudo ovs-ofctl -O OpenFlow13 dump-flows s1
 ```
 
+![Ryu Logs and Flow Rules](./8_RyuLogs.png)
+*Figure 4.8: Controller logs and OpenFlow flow table rules on Open vSwitch.*
+
 ### 16. Add a Traffic Filtering Rule (Drop Port 1 Ingress)
-Insert a higher-priority OpenFlow rule (`priority=100`) on switch `s1` to drop all packets entering through port 1 (`h1`):
+Manually insert a flow entry into `s1` with higher priority to drop all incoming packets from OpenFlow port 1 (`in_port=1`):
 ```bash
-sudo ovs-ofctl -O OpenFlow13 add-flow s1 "priority=100,in_port=1,actions=drop"
+sudo ovs-ofctl -O OpenFlow13 add-flow s1 "priority=65535,in_port=1,actions=drop"
 ```
 
 ### 17. Verify the Filtering Rule
-Return to **Terminal 2 (`mininet>`)** and attempt to ping `h2` from `h1`:
+In the Mininet console:
 ```text
-mininet> h1 ping -c 4 h2
+mininet> pingall
 ```
-* **Observation:** 100% packet loss occurs because traffic entering `s1` on `in_port=1` matches the `priority=100` drop rule before reaching the reactive forwarding rules.
+Hosts behind port 1 (`h1`, `h2`) can no longer communicate across `s1`, proving SDN flow table policy enforcement.
 
 ### 18. Remove Flow Rules
-Return to **Terminal 3** and clear the flow table on switch `s1`:
+Restore regular switching by deleting the drop rule:
 ```bash
-sudo ovs-ofctl -O OpenFlow13 del-flows s1
+sudo ovs-ofctl -O OpenFlow13 del-flows s1 "in_port=1"
+```
+Re-verify connectivity:
+```text
+mininet> pingall
 ```
 
 ### 19. Clean Up the Mininet Environment
-Exit the Mininet CLI (`mininet> exit`) and clean up all virtual interfaces, switches, and lingering namespaces:
+Exit Mininet and reset virtual interfaces:
+```text
+mininet> exit
+```
 ```bash
 sudo mn -c
 ```
@@ -183,5 +199,4 @@ sudo mn -c
 ---
 
 ## Result
-
-The SDN environment was successfully created using **Mininet**, **Open vSwitch**, and the **Ryu Controller** on Ubuntu with Python 3.14. Compatibility issues with modern `setuptools` and `eventlet` were resolved, and both reactive Layer-2 packet forwarding and OpenFlow 1.3 flow-table traffic filtering (`actions=drop`) were demonstrated.
+A complete Software-Defined Networking architecture was implemented and verified. The Ryu SDN Controller successfully orchestrated OpenFlow 1.3 switches running on Open vSwitch, dynamically installed flow table entries based on packet forwarding logic, and enforced granular programmatic traffic filtering.
